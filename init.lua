@@ -121,10 +121,8 @@ vim.o.autoindent = true
 vim.opt.expandtab = true
 vim.opt.shiftwidth = 4
 vim.o.conceallevel = 2
-vim.o.encoding = utf-8
-vim.o.fileencoding = utf-8
-
-
+--vim.o.encoding = utf-8
+--vim.o.fileencoding = utf-8
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -132,8 +130,8 @@ vim.o.fileencoding = utf-8
 vim.keymap.set('i', 'jj', '<Esc>')
 vim.keymap.set('n', '<F6>', ':setlocal spelllang=sr@latin spell!<CR>')
 vim.keymap.set('n', '<F7>', ':set spelllang=en_us<CR>')
-vim.keymap.set('n', 'i' '<Space><Space>', '<Esc>/<++><Enter>"_c4l')
-
+vim.keymap.set('n', '<leader>g', ':Goyo<CR>')
+--vim.keymap.set('n', 'i' '<Space><Space>', '<Esc>/<++><Enter>"_c4l')
 
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
@@ -174,6 +172,51 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- Highlight when yanking (copying) text
 --  Try it with `yap` in normal mode
 --  See `:help vim.highlight.on_yank()`
+
+local mdGroup = vim.api.nvim_create_augroup('md', { clear = true })
+vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
+  patern = '*.md',
+  group = 'md',
+  command = 'inoremap ;1 #<Space><Space><Enter><Enter><++><esc>2ki',
+})
+
+vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
+  patern = '*.md',
+  group = 'md',
+  command = 'inoremap ;2 ##<Space><Enter><Enter><++><Esc>2kA',
+})
+
+vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
+  patern = '*.md',
+  group = 'md',
+  command = 'inoremap ;3 ###<Space><Enter><Enter><++><Enter><Enter><++><Esc>4kA',
+})
+vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
+  patern = '*.md',
+  group = 'md',
+  command = 'inoremap ;i **<space><++><Esc>5hi',
+})
+
+--[[ vim.api.nvim_create_autocmd("FileType", {
+  pattern = "markdown",
+  callback = function(args)
+    vim.keymap.set('n', ';T', ':InsertToc<Enter>')
+  end
+})
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "markdown",
+  callback = function(args)
+    vim.keymap.set('i', ';1', '#<Space><Space><Enter><Enter><++><esc>2ki')
+  end
+})
+--vim.keymap.Set('i', ';1', '#<Space><Space><Enter><Enter><++><esc>2ki')
+    --vim.keymap.Set('i', '', '')
+    --vim.keymap.Set('i', '', '')
+    --vim.keymap.Set('i', '', '')
+    --vim.keymap.Set('i', '', '')
+    --vim.keymap.Set('i', '', '')
+    --vim.keymap.Set('i', '', '') ]]
+
 vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
   group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
@@ -205,6 +248,13 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+  'PProvost/vim-ps1', -- beter ps1
+  --'vim-airline/vim-airline',
+  --'vim-airline/vim-airline-themes',
+  'junegunn/goyo.vim', -- Beautifle for text
+  'plasticboy/vim-markdown', -- better markdown
+  'editorconfig/editorconfig-vim', -- beter conf
+  'xiyaowong/transparent.nvim', -- makes nvim transparent
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
