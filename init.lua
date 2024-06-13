@@ -187,7 +187,7 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 
-vim.api.nvim_create_autocmd(BufRead, {
+vim.api.nvim_create_autocmd('BufRead', {
   pattern = '*.conf',
   group = vim.api.nvim_create_augroup('cf', { clear = true }),
   callback = function()
