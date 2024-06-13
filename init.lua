@@ -169,53 +169,31 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
--- Highlight when yanking (copying) text
---  Try it with `yap` in normal mode
---  See `:help vim.highlight.on_yank()`
-
-local mdGroup = vim.api.nvim_create_augroup('md', { clear = true })
-vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
-  patern = '*.md',
-  group = 'md',
-  command = 'inoremap ;1 #<Space><Space><Enter><Enter><++><esc>2ki',
-})
-
-vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
-  patern = '*.md',
-  group = 'md',
-  command = 'inoremap ;2 ##<Space><Enter><Enter><++><Esc>2kA',
-})
-
-vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
-  patern = '*.md',
-  group = 'md',
-  command = 'inoremap ;3 ###<Space><Enter><Enter><++><Enter><Enter><++><Esc>4kA',
-})
-vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
-  patern = '*.md',
-  group = 'md',
-  command = 'inoremap ;i **<space><++><Esc>5hi',
-})
-
---[[ vim.api.nvim_create_autocmd("FileType", {
-  pattern = "markdown",
-  callback = function(args)
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'markdown',
+  group = vim.api.nvim_create_augroup('md', { clear = true }),
+  callback = function()
     vim.keymap.set('n', ';T', ':InsertToc<Enter>')
-  end
-})
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "markdown",
-  callback = function(args)
     vim.keymap.set('i', ';1', '#<Space><Space><Enter><Enter><++><esc>2ki')
-  end
+    vim.keymap.set('i', ';2', '##<Space><Enter><Enter><++><Esc>2kA')
+    vim.keymap.set('i', ';3', '###<Space><Enter><Enter><++><Enter><Enter><++><Esc>4kA')
+    vim.keymap.set('i', ';i', '**<space><++><Esc>5hi')
+    vim.keymap.set('i', ';b', '****<Space><++><Esc>6hi')
+    vim.keymap.set('i', ';pe', '----<Enter><Enter>')
+    vim.keymap.set('i', ';m', '![]()<Space><Space><Enter><++><Esc>/(<Enter>li')
+    vim.keymap.set('i', ';s', '<++>')
+    vim.keymap.set('i', '<Space><Space>', '<Esc>/<++><Enter>"_c4l')
+    vim.keymap.set('n', '<Space><Space>', '<Esc>/<++><Enter>"_c4l')
+  end,
 })
---vim.keymap.Set('i', ';1', '#<Space><Space><Enter><Enter><++><esc>2ki')
-    --vim.keymap.Set('i', '', '')
-    --vim.keymap.Set('i', '', '')
-    --vim.keymap.Set('i', '', '')
-    --vim.keymap.Set('i', '', '')
-    --vim.keymap.Set('i', '', '')
-    --vim.keymap.Set('i', '', '') ]]
+
+vim.api.nvim_create_autocmd(BufRead, {
+  pattern = '*.conf',
+  group = vim.api.nvim_create_augroup('cf', { clear = true }),
+  callback = function()
+    vim.keymap.set('n', ';c', 'i#<Esc>')
+  end,
+})
 
 vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
@@ -224,6 +202,9 @@ vim.api.nvim_create_autocmd('TextYankPost', {
     vim.highlight.on_yank()
   end,
 })
+-- Highlight when yanking (copying) text
+--  Try it with `yap` in normal mode
+--  See `:help vim.highlight.on_yank()`
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
