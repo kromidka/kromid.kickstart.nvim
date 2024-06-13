@@ -49,7 +49,6 @@ Kickstart Guide:
 
 --]]
 
--- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 vim.g.mapleader = ','
@@ -229,13 +228,6 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
-  'PProvost/vim-ps1', -- beter ps1
-  --'vim-airline/vim-airline',
-  --'vim-airline/vim-airline-themes',
-  'junegunn/goyo.vim', -- Beautifle for text
-  'plasticboy/vim-markdown', -- better markdown
-  'editorconfig/editorconfig-vim', -- beter conf
-  'xiyaowong/transparent.nvim', -- makes nvim transparent
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -266,7 +258,19 @@ require('lazy').setup({
       },
     },
   },
-
+  {
+    -- Set lualine as statusline
+    'nvim-lualine/lualine.nvim',
+    -- See `:help lualine.txt`
+    opts = {
+      options = {
+        icons_enabled = false,
+        theme = 'onedark',
+        component_separators = '|',
+        section_separators = '',
+      },
+    },
+  },
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
@@ -886,7 +890,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
@@ -894,7 +898,7 @@ require('lazy').setup({
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
@@ -919,3 +923,46 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+
+-- Useful for easily creating commands
+local z_utils = require 'telescope._extensions.zoxide.utils'
+
+require('telescope').setup {
+  -- (other Telescope configuration...)
+  extensions = {
+    zoxide = {
+      prompt_title = '[ Walking on the shoulders of TJ ]',
+      mappings = {
+        default = {
+          after_action = function(selection)
+            print('Update to (' .. selection.z_score .. ') ' .. selection.path)
+          end,
+        },
+        ['<C-s>'] = {
+          before_action = function(selection)
+            print 'before C-s'
+          end,
+          action = function(selection)
+            vim.cmd.edit(selection.path)
+          end,
+        },
+        -- Opens the selected entry in a new split
+        ['<C-q>'] = { action = z_utils.create_basic_command 'split' },
+      },
+    },
+  },
+}
+require('synthwave84').setup {
+  glow = {
+    error_msg = true,
+    type2 = true,
+    func = true,
+    keyword = true,
+    operator = false,
+    buffer_current_target = true,
+    buffer_visible_target = true,
+    buffer_inactive_target = true,
+  },
+}
+
+vim.cmd [[colorscheme synthwave84]]
