@@ -28,17 +28,21 @@ External Requirements:
 - A [Nerd Font](https://www.nerdfonts.com/): optional, provides various icons
   - if you have it set `vim.g.have_nerd_font` in `init.lua` to true
 - Language Setup:
-  - If want to write Typescript, you need `npm`
-  - If want to write Golang, you will need `go`
+  - If you want to write Typescript, you need `npm`
+  - If you want to write Golang, you will need `go`
   - etc.
 
+
 ### Install Kickstart
+
+
+Neovim's configurations are located under the following paths, depending on your OS:
 
 | OS | PATH |
 | :- | :--- |
 | Linux, MacOS | `$XDG_CONFIG_HOME/nvim`, `~/.config/nvim` |
-| Windows (cmd)| `%userprofile%\AppData\Local\nvim\` |
-| Windows (powershell)| `$env:USERPROFILE\AppData\Local\nvim\` |
+| Windows (cmd)| `%localappdata%\nvim\` |
+| Windows (powershell)| `$env:LOCALAPPDATA\nvim\` |
 
 #### Clone kickstart.nvim
 
@@ -47,7 +51,7 @@ External Requirements:
 If you're using `powershell.exe`
 
 ```
-git clone https://github.com/kromidka/kromid.kickstart.nvim.git $env:USERPROFILE\AppData\Local\nvim\
+git clone https://github.com/kromidka/kromid.kickstart.nvim.git "${env:LOCALAPPDATA}\nvim"
 ```
 
 </details>
@@ -66,4 +70,5 @@ current plugin status. Hit `q` to close the window.
 Read through the `init.lua` file in your configuration folder for more
 information about extending and exploring Neovim. That also includes
 examples of adding popularly requested plugins.
+
 
