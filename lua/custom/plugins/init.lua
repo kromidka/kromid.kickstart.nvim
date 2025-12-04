@@ -65,10 +65,3 @@ return {
 	'xiyaowong/transparent.nvim', -- makes nvim transparent
 
 }
-
-  -- File Explorer in Vim Ctrl+f
-  {
-    'nvim-telescope/telescope-file-browser.nvim',
-    dependencies = { 'nvim-telescope/telescope.nvim', 'nvim-lua/plenary.nvim' },
-  },
-  
