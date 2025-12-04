@@ -71,3 +71,21 @@ keymap('n', '<Leader>4', '4gt<CR>', opts)
 keymap('n', '<Leader>5', '5gt<CR>', opts)
 keymap('n', '<Leader>t', '<cmd> tabnew<CR>', opts)
 keymap('n', '<Leader>c', '<cmd> tabclose<CR>', opts)
+
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'markdown',
+  group = vim.api.nvim_create_augroup('md', { clear = true }),
+  callback = function()
+    vim.keymap.set('n', ';T', ':InsertToc<Enter>')
+    vim.keymap.set('i', ';1', '#<Space><Space><Enter><Enter><++><esc>2ki')
+    vim.keymap.set('i', ';2', '##<Space><Enter><Enter><++><Esc>2kA')
+    vim.keymap.set('i', ';3', '###<Space><Enter><Enter><++><Enter><Enter><++><Esc>4kA')
+    vim.keymap.set('i', ';i', '**<space><++><Esc>5hi')
+    vim.keymap.set('i', ';b', '****<Space><++><Esc>6hi')
+    vim.keymap.set('i', ';pe', '----<Enter><Enter>')
+    vim.keymap.set('i', ';m', '![]()<Space><Space><Enter><++><Esc>/(<Enter>li')
+    vim.keymap.set('i', ';s', '<++>')
+    vim.keymap.set('i', '<Space><Space>', '<Esc>/<++><Enter>"_c4l')
+    vim.keymap.set('n', '<Space><Space>', '<Esc>/<++><Enter>"_c4l')
+  end,
+})
