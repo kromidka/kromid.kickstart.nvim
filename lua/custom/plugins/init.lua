@@ -57,9 +57,11 @@ return {
       },
     },
 
+	'jvgrootveld/telescope-zoxide',
 	'PProvost/vim-ps1', -- beter ps1
 	'junegunn/goyo.vim', -- Beautifle for text
 	'plasticboy/vim-markdown', -- better markdown
 	'editorconfig/editorconfig-vim', -- beter conf
+	'xiyaowong/transparent.nvim', -- makes nvim transparent
 
 }
