@@ -63,4 +63,21 @@ return {
   'plasticboy/vim-markdown', -- better markdown
   'editorconfig/editorconfig-vim', -- beter conf
   'xiyaowong/transparent.nvim', -- makes nvim transparent
+
+  {
+    'gl1tchc0d3r/typstwriter.nvim',
+    ft = 'typst',
+    config = function()
+      require('typstwriter').setup {
+        notes_dir = '~/Documents/notes',
+        default_template_type = 'note',
+        auto_date = true,
+        use_random_suffix = true,
+        auto_compile = true,
+        open_after_compile = true,
+        require_metadata = false,
+        required_fields = { 'type', 'title' },
+      }
+    end,
+  },
 }
