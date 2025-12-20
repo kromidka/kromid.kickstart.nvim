@@ -118,7 +118,7 @@ vim.api.nvim_create_autocmd('FileType', {
       else
         -- START the watcher
         local file = vim.fn.expand '%'
-        local script_path = vim.fn.expand '~/typst-do.sh'
+        local script_path = vim.fn.expand '~/.config/nvim/lua/typst-do.sh'
         vim.cmd 'write' -- Save before starting
 
         -- Run the script in the background
