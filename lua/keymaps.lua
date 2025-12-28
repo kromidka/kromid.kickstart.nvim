@@ -89,99 +89,117 @@ vim.api.nvim_create_autocmd('FileType', {
     keymap('n', '<Space><Space>', '/<++><Enter>"_c4l')
   end,
 })
-
---vim.keymap.set('n', '<leader>TT', function()
---  -- 1. Get the current file name
---  local file = vim.fn.expand '%'
---
---  -- 2. Optional: Save the file before running (so the watcher picks up current state)
---  vim.cmd 'write'
---
---  -- 3. Open a vertical split and run the script inside a terminal
---  -- Change 'typst-watch' to the full path if you didn't move it to /bin
---  vim.cmd('vsplit | terminal ~/typst-do.sh ' .. file)
---
---  -- 4. (Optional) Switch focus back to the code window immediately
---  -- vim.cmd("wincmd p")
---end, { desc = '[T]ypst [T]erminal Watch' })
-
 vim.api.nvim_create_autocmd('FileType', {
   pattern = 'typst',
+  group = vim.api.nvim_create_augroup('typst_keys', { clear = true }),
   callback = function()
-    vim.keymap.set('n', '<leader>TT', function()
-      -- Check if a job is already running for this buffer
+    -- Helper function for cleaner mapping syntax
+    local function buf_map(mode, lhs, rhs)
+      vim.keymap.set(mode, lhs, rhs, { buffer = true, silent = true })
+    end
+
+    -- =========================================================
+    -- 1. TYPST WATCHER TOGGLE (With Error Reporting)
+    -- =========================================================
+    buf_map('n', '<leader>TT', function()
       if vim.b.typst_job_id then
-        -- STOP the watcher
         vim.fn.jobstop(vim.b.typst_job_id)
         vim.b.typst_job_id = nil
+        vim.cmd 'cclose'
         vim.notify('Typst Watcher Stopped', vim.log.levels.INFO)
       else
-        -- START the watcher
         local file = vim.fn.expand '%'
-        local script_path = vim.fn.expand '~/.config/nvim/lua/typst-do.sh'
-        vim.cmd 'write' -- Save before starting
+        local script_path = vim.fn.expand 'typst-do.sh'
+        vim.cmd 'write'
 
-        -- Run the script in the background
-        -- Ensure 'typst-watch' is in your PATH, or use the absolute path like '/home/user/bin/typst-watch'
         vim.b.typst_job_id = vim.fn.jobstart({ script_path, file }, {
-          detach = true, -- keeps it running if you switch buffers
-          on_exit = function()
-            -- Reset the ID if the script exits on its own (e.g., error)
-            vim.b.typst_job_id = nil
-          end,
-          -- Optional: output error messages to Neovim's message area
           on_stderr = function(_, data)
-            if data and #data > 1 then
-              -- formatting to avoid empty lines
-              local msg = table.concat(data, '\n')
-              if msg ~= '' then
-                vim.notify('Typst Error: ' .. msg, vim.log.levels.ERROR)
+            if not data then
+              return
+            end
+
+            local errors = {}
+            local has_real_error = false
+
+            for _, line in ipairs(data) do
+              if line ~= '' then
+                -- Typst errors usually contain "error" or "warning"
+                if line:lower():find 'error' or line:lower():find 'warning' then
+                  has_real_error = true
+                end
+                table.insert(errors, line)
               end
             end
+
+            if has_real_error then
+              vim.fn.setqflist({}, 'r', { title = 'Typst Errors', lines = errors })
+              vim.cmd 'copen 6'
+              vim.cmd 'wincmd p' -- Keep focus on your code
+            elseif #errors > 0 then
+              -- If there's output but no "error" word, it's likely a success message
+              -- We clear the list and close the window
+              vim.fn.setqflist({}, 'r', { title = 'Typst Errors', lines = {} })
+              vim.cmd 'cclose'
+            end
+          end,
+          on_exit = function()
+            vim.b.typst_job_id = nil
           end,
         })
 
         vim.notify('Typst Watcher Started', vim.log.levels.INFO)
       end
-    end, { buffer = true, desc = 'Toggle Typst Watcher' })
-  end,
-})
+    end)
+    -- =========================================================
+    -- 2. DOCUMENT STRUCTURE
+    -- =========================================================
+    -- Table of Contents (Outline)
+    buf_map('n', '<leader>tT', 'i#outline(title: "Contents", indent: auto)<Enter><Enter><++><Esc>2ki')
 
-vim.api.nvim_create_autocmd('FileType', {
-  pattern = 'typst',
-  group = vim.api.nvim_create_augroup('typst_keys', { clear = true }),
-  callback = function()
-    local function buf_map(mode, lhs, rhs)
-      vim.keymap.set(mode, lhs, rhs, { buffer = true, silent = true })
-    end
+    -- Metadata (Title/Author)
+    buf_map('n', '<leader>td', 'i#set document(title: "<++>", author: "<++>")<Enter>#set page(paper: "a4")<Enter><Enter><++><Esc>3kgf"a')
 
-    -- Headings (Typst uses = instead of #)
+    -- Headings
     buf_map('n', '<leader>t1', 'i=<Space><Enter><Enter><++><Esc>2kA')
     buf_map('n', '<leader>t2', 'i==<Space><Enter><Enter><++><Esc>2kA')
     buf_map('n', '<leader>t3', 'i===<Space><Enter><Enter><++><Esc>2kA')
 
-    -- Text Formatting
+    -- =========================================================
+    -- 3. LISTS & TABLES
+    -- =========================================================
+    -- Numbered List
+    buf_map('n', '<leader>tn', 'i+ <++><Enter>+ <++><Esc>ki')
+
+    -- Table (Simple 2x2 setup)
+    buf_map(
+      'n',
+      '<leader>tt',
+      'i#table(<Enter>columns: (1fr, 1fr),<Enter>inset: 10pt,<Enter>align: horizon,<Enter>[*Header 1*], [*Header 2*],<Enter>[<++>], [<++>],<Enter>)<Esc>ki'
+    )
+
+    -- =========================================================
+    -- 4. FORMATTING & MATH
+    -- =========================================================
+    -- Text Styles
     buf_map('n', '<leader>ti', 'i_<++>_<Esc>F_i') -- Italics
     buf_map('n', '<leader>tb', 'i*<++>*<Esc>F*i') -- Bold
-    buf_map('n', '<leader>tm', 'i$<++>$<Esc>F$i') -- Inline Math
-    buf_map('n', '<leader>tl', 'i#link("<++>")[<++>]<Esc>F"hi') -- Link
 
-    buf_map('n', '<leader>tT', 'i#outline(title: "Contents", indent: auto)<Enter><Enter><++><Esc>2ki')
-    -- New: Useful Typst Specifics
+    -- Links
+    buf_map('n', '<leader>tl', 'i#link("<++>")[<++>]<Esc>F"hi')
 
-    -- Metadata/Frontmatter Block
-    buf_map('n', '<leader>td', 'i#set document(title: "<++>", author: "<++>")<Enter>#set page(paper: "a4")<Enter><Enter><++><Esc>3kgf"a')
-
-    -- Block Math (Centered)
-    buf_map('n', '<leader>tM', 'i$ <++> $<Esc>F<space>i')
-
-    -- Image Block
+    -- Images
     buf_map('n', '<leader>tg', 'i#figure(<Enter>image("<++>", width: 80%),<Enter>caption: [<++>],<Enter>)<Esc>2kf"a')
 
-    -- Code Block
+    -- Math
+    buf_map('n', '<leader>tm', 'i$<++>$<Esc>F$i') -- Inline Math
+    buf_map('n', '<leader>tM', 'i$ <++> $<Esc>F<space>i') -- Block Math
+
+    -- Code Blocks
     buf_map('n', '<leader>tc', 'i```<Enter><++><Enter>```<Esc>ka')
 
-    -- Navigation (Your <++> jumps)
+    -- =========================================================
+    -- 5. NAVIGATION (Placeholder Jumps)
+    -- =========================================================
     buf_map('i', ';s', '<++>')
     buf_map('i', '<Space><Space>', '<Esc>/<++><Enter>"_c4l')
     buf_map('n', '<Space><Space>', '/<++><Enter>"_c4l')
